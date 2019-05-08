@@ -56,9 +56,19 @@ A summary of the commands is showed below:
 
 #### 3.3) Install the main package from Fetch Robotics GitHub page
 
-Go to your ROS workspace (which is called `ros_ws` here), and inside `ros_ws/src/`: 
+Go to your ROS workspace, and do the following commands  (considering it is called `~/ros_ws`): 
+
+0) `cd ~/ros_ws/src/`
 1) `git clone https://github.com/fetchrobotics/fetch_ros`
-2) `cd ..`
+
+Make sure you're on the right branch:
+
+2) `cd fetch_ros`
+3) `git checkout indigo-devel`
+
+Now go back to the workspace and compile it:
+
+2) `cd ~/ros_ws`
 3) `catkin_make`
 4) `source devel/setup.bash`
 
