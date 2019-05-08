@@ -72,3 +72,11 @@ It will be a long time (about 5 min depends on your network) to start the gazebo
 `roslaunch fetch_gazebo_demo demo.launch`
 #### 3.7) Start rviz and add the depth/image/baselaser to your rviz.
 `rviz`
+
+### Issues
+
+If you have any issues when compiling, go to `ros_ws` and do:
+`rosdep install --from-paths src -r -y`
+
+This will install the dependencies of all packages in the workspace. Extracted from http://wiki.ros.org/rosdep.
+
