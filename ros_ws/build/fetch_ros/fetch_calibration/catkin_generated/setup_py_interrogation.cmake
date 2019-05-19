@@ -1,0 +1,6 @@
+set(fetch_calibration_SETUP_PY_VERSION "0.7.15")
+set(fetch_calibration_SETUP_PY_SCRIPTS "scripts/calibrate_robot")
+set(fetch_calibration_SETUP_PY_PACKAGES "")
+set(fetch_calibration_SETUP_PY_PACKAGE_DIRS "")
+set(fetch_calibration_SETUP_PY_MODULES "")
+set(fetch_calibration_SETUP_PY_MODULE_DIRS "")

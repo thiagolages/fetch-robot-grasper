@@ -1,0 +1,8 @@
+prefix=/media/thiago/138f6b25-d5de-401d-bbb9-882b94f57811/thiago/Documents/UTS/sensors-and-control/assignments/fetch-robot-grasper/ros_ws/devel
+
+Name: simple_grasping
+Description: Description of simple_grasping
+Version: 0.3.1
+Cflags: -I/media/thiago/138f6b25-d5de-401d-bbb9-882b94f57811/thiago/Documents/UTS/sensors-and-control/assignments/fetch-robot-grasper/ros_ws/src/simple_grasping/include
+Libs: -L/media/thiago/138f6b25-d5de-401d-bbb9-882b94f57811/thiago/Documents/UTS/sensors-and-control/assignments/fetch-robot-grasper/ros_ws/devel/lib -lsimple_grasping
+Requires: actionlib geometry_msgs grasping_msgs moveit_msgs pcl_ros sensor_msgs shape_msgs

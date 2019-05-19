@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# creates a relay to a python script source file, acting as that file.
+# The purpose is that of a symlink
+with open("/media/thiago/138f6b25-d5de-401d-bbb9-882b94f57811/thiago/Documents/UTS/sensors-and-control/assignments/fetch-robot-grasper/ros_ws/src/fetch_ros/fetch_calibration/scripts/calibrate_robot", 'r') as fh:
+    exec(fh.read())

@@ -1,0 +1,8 @@
+prefix=/media/thiago/138f6b25-d5de-401d-bbb9-882b94f57811/thiago/Documents/UTS/sensors-and-control/assignments/fetch-robot-grasper/ros_ws/install
+
+Name: fetch_calibration
+Description: Description of fetch_calibration
+Version: 0.7.15
+Cflags: 
+Libs: -L/media/thiago/138f6b25-d5de-401d-bbb9-882b94f57811/thiago/Documents/UTS/sensors-and-control/assignments/fetch-robot-grasper/ros_ws/install/lib 
+Requires: 
