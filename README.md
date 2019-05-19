@@ -78,7 +78,7 @@ Now go back to the workspace and compile it:
 It will be a long time (about 5 min depends on your network) to start the gazebo for the first time, as it downloads the model from internet.
 #### 3.5) Check the data
 `roslaunch fetch_gazebo playground.launch`
-#### 3.6) pen another terminal
+#### 3.6) Open another terminal
 `roslaunch fetch_gazebo_demo demo.launch`
 #### 3.7) Start rviz and add the depth/image/baselaser to your rviz.
 `rviz`
