@@ -76,7 +76,8 @@ def define_ground_plane():
     # Define ground plane
     # This creates objects in the planning scene that mimic the ground
     # If these were not in place gripper could hit the ground
-    planning_scene = PlanningSceneInterface("base_link")
+    global planning_scene
+    
     planning_scene.removeCollisionObject("my_front_ground")
     planning_scene.removeCollisionObject("my_back_ground")
     planning_scene.removeCollisionObject("my_right_ground")
@@ -117,6 +118,8 @@ if __name__ == '__main__':
     
     print("HEEEEELLO")
     
+    planning_scene = PlanningSceneInterface("base_link")
+
     define_ground_plane()
     
     # Create move group interface for a fetch robot
