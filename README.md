@@ -90,3 +90,13 @@ If you have any issues when compiling, go to `ros_ws` and do:
 
 This will install the dependencies of all packages in the workspace. Extracted from http://wiki.ros.org/rosdep.
 
+### Tips
+1) Always run `source ros_ws/devel/setup.bash` before running a launch file, it might help.
+
+
+
+
+### Tutorials that might help
+http://wiki.ros.org/pr2_controllers/Tutorials
+http://docs.ros.org/kinetic/api/moveit_tutorials/html/doc/move_group_python_interface/move_group_python_interface_tutorial.html
+http://docs.ros.org/indigo/api/pr2_moveit_tutorials/html/planning/scripts/doc/move_group_python_interface_tutorial.html
