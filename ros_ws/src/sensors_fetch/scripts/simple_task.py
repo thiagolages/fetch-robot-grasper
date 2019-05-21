@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import rospy
+import rospy, math, tf2_ros
+import geometry_msgs.msg
 from moveit_msgs.msg import MoveItErrorCodes
 from moveit_python import MoveGroupInterface, PlanningSceneInterface
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
@@ -9,7 +10,28 @@ import moveit_commander
 # class definition that is useful for moving base around (file inside our package)
 from client_interface import MoveBaseClient 
 
-def move_arm(gripper_poses):
+# def get_relative_pose():
+
+# 	tfBuffer = tf2_ros.Buffer()
+# 	listener = tf2_ros.TransformListener(tfBuffer)
+
+
+# 	turtle_vel = rospy.Publisher('/cmd_vel' % turtle_name, geometry_msgs.msg.Twist, queue_size=1)
+# 	rate = rospy.Rate(10.0)
+# 	try:
+# 	    trans = tfBuffer.lookup_transform('', '/map', rospy.Time())
+# 	except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+# 	    rate.sleep()
+# 	    continue
+
+# 	msg = geometry_msgs.msg.Twist()
+# 	msg.angular.z = 4 * math.atan2(trans.transform.translation.y, trans.transform.translation.x)
+# 	msg.linear.x = 0.5 * math.sqrt(trans.transform.translation.x ** 2 + trans.transform.translation.y ** 2)
+# 	turtle_vel.publish(msg)
+
+
+
+def moveToPose(gripper_poses):
     
     # This is the wrist link not the gripper itself
     gripper_frame = 'wrist_roll_link'
@@ -19,28 +41,33 @@ def move_arm(gripper_poses):
     gripper_pose_stamped.header.frame_id = 'base_link'
 
     for pose in gripper_poses:
+        rospy.loginfo("Moving to pose %s:\n",pose)
         #rospy.loginfo("Inside 'pose' loop")
         # Finish building the Pose_stamped message
         gripper_pose_stamped.header.stamp = rospy.Time.now()
         gripper_pose_stamped.pose = pose
-
-        rospy.loginfo("Now shaking arm")
 
         # Move gripper frame to the pose specified
         move_group.moveToPose(gripper_pose_stamped, gripper_frame)
         result = move_group.get_move_action().get_result()
 
         if check_result(result):
-            rospy.loginfo("Hello there!")
+            rospy.loginfo("Done !")
+            #joint_pos = group.get_current_joint_values()
+            #rospy.loginfo("Current joint pos = ",joint_pos)
 
-def tuck_arm():
-    global move_group, tuck_joint_pos, joints
+def moveToJointPosition(joint_position):
+    global move_group, joints, group
     
-    rospy.loginfo("Now tucking arm")
+    rospy.loginfo("Moving to joint position %s:\n",joint_position)
+
     move_group.moveToJointPosition(joints, tuck_joint_pos)
     result = move_group.get_move_action().get_result()
     if check_result(result):
-        rospy.loginfo("Tucking complete!")
+        rospy.loginfo("Done !")
+        joint_pos = group.get_current_joint_values()
+        rospy.loginfo("Current joint pos = %s",joint_pos)
+
 
 #def lower_torso():
 
@@ -59,7 +86,7 @@ def define_ground_plane():
     planning_scene.addCube("my_left_ground" , 2,  0.0,  1.2, -1.0)
     planning_scene.addCube("my_right_ground", 2,  0.0, -1.2, -1.0)
 
-    planning_scene.addCube("my_front_plane" , 2,  0.5, 0.0, 1.0) # avoid hitting the table
+    #planning_scene.addCube("my_front_plane" , 2,  0.5, 0.0, 1.0) # avoid hitting the table
 
 def check_result(result):
     if result:
@@ -120,17 +147,19 @@ if __name__ == '__main__':
     #print ("============")
 
     # To get just joint angles:
-    group_variable_values = group.get_current_joint_values()
-    print "============ Joint values: ", group_variable_values
+    #group_variable_values = group.get_current_joint_values()
+    #print "============ Joint values: ", group_variable_values
 
 
     while not rospy.is_shutdown():
-	        
-        move_arm(gripper_poses)
-        tuck_arm()
-        rospy.sleep(3)
+	   
+        rospy.loginfo("Now shaking arm")
+        moveToPose(gripper_poses)
 
-	        
+        rospy.loginfo("Now tucking arm")
+        moveToJointPosition(tuck_joint_pos)
+
+        rospy.sleep(3)
 
     # This stops all arm movement goals
     # It should be called when a program is exiting so movement stops
