@@ -114,8 +114,7 @@ catkin_package(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES
-    perception_crop
-    perception_segmentation
+    perception_centroider
 # CATKIN_DEPENDS roscpp rospy
 # DEPENDS system_lib
 )
@@ -139,13 +138,9 @@ include_directories(
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_library(perception_crop src/crop.cpp)
-add_dependencies(perception_crop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(perception_crop ${catkin_LIBRARIES})
-
-add_library(perception_segmentation src/segmentation.cpp)
-add_dependencies(perception_segmentation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(perception_segmentation ${catkin_LIBRARIES})
+add_library(perception_centroider src/centroider.cpp)
+add_dependencies(perception_centroider ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(perception_centroider ${catkin_LIBRARIES})
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
@@ -157,12 +152,11 @@ add_dependencies(perception_save_cloud_main ${${PROJECT_NAME}_EXPORTED_TARGETS} 
 target_link_libraries(perception_save_cloud_main
    ${catkin_LIBRARIES}
 )
-add_executable(perception_point_cloud_demo src/point_cloud_demo.cpp)
-set_target_properties(perception_point_cloud_demo PROPERTIES OUTPUT_NAME point_cloud_demo PREFIX "")
-add_dependencies(perception_point_cloud_demo ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(perception_point_cloud_demo
-  perception_crop
-  perception_segmentation
+add_executable(perception_centroid_calculator src/centroid_calculator.cpp)
+set_target_properties(perception_centroid_calculator PROPERTIES OUTPUT_NAME centroid_calculator PREFIX "")
+add_dependencies(perception_centroid_calculator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(perception_centroid_calculator
+  perception_centroider
   ${catkin_LIBRARIES}
 )
 

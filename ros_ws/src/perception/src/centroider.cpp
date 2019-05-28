@@ -1,4 +1,4 @@
-#include "perception/segmentation.h"
+#include "perception/centroider.h"
 
 #include "pcl/PointIndices.h"
 #include "pcl/point_cloud.h"
@@ -20,7 +20,9 @@ namespace perception {
 
 visualization_msgs::Marker marker;
 
-void SegmentSurface(PointCloudC::Ptr cloud) {
+void CentroidOfCloud(PointCloudC::Ptr cloud) {
+
+	
 
 	ROS_INFO("Got point cloud with %ld points", cloud->size());
 	PointC min_pcl;
@@ -88,16 +90,18 @@ void SegmentSurface(PointCloudC::Ptr cloud) {
 						ROS_INFO("Updated Marker");
 			//////////////////
 */
+
+
 }
 
-Segmenter::Segmenter(const ros::Publisher& centroid_pub)
+Centroid_::Centroid_(const ros::Publisher& centroid_pub)
     : centroid_pub_(centroid_pub) {}
 
 
-void Segmenter::Callback(const sensor_msgs::PointCloud2& msg) {
+void Centroid_::Callback(const sensor_msgs::PointCloud2& msg) {
   PointCloudC::Ptr cloud(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud);
-	SegmentSurface(cloud);
+	CentroidOfCloud(cloud);
 		 // sensor_msgs::PointCloud2 msg_out;
 		 // pcl::toROSMsg(*cropped_cloud, msg_out);
   centroid_pub_.publish(marker);

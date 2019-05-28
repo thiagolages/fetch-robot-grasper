@@ -104,4 +104,10 @@
       negative: false
     </rosparam>
   </node>
+
+  <node pkg="perception" type="centroid_calculator" name="centroider" args="cloud_in:=/extract_objects_indices/output" output="screen">
+    <!-- Extract_plane_indices needs to be negated for this work -->
+    <rosparam>
+    </rosparam>
+  </node>
 </launch>
