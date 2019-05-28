@@ -33,9 +33,9 @@ void CentroidOfCloud(PointCloudC::Ptr cloud) {
 	PointC max_pcl;
 	PointC centroid;
 	pcl::getMinMax3D<PointC>(*cloud, min_pcl, max_pcl);
-	centroid.x += 0.0;
-	centroid.y += 0.0;
-	centroid.z += 0.0;
+	centroid.x = 0.0;
+	centroid.y = 0.0;
+	centroid.z = 0.0;
 	for (int i=0; i < int(cloud->size()); i++){
 		centroid.x += cloud->at(i).x;
 		centroid.y += cloud->at(i).y;
@@ -44,8 +44,8 @@ void CentroidOfCloud(PointCloudC::Ptr cloud) {
 		ROS_INFO("Centroid.x = %f", centroid.x);
 	}
 		centroid.x = centroid.x/cloud->size();
-		centroid.y = centroid.x/cloud->size();
-		centroid.z = centroid.x/cloud->size();
+		centroid.y = centroid.y/cloud->size();
+		centroid.z = centroid.z/cloud->size();
 	
 	ROS_INFO("Centroid: X: %f, Y: %f, Z: %f", centroid.x, centroid.y, centroid.z);
 
