@@ -16,10 +16,10 @@ void CentroidOfCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 
 class Centroid_ {
  public:
-  Centroid_(const ros::Publisher& centroid_pub);
+  Centroid_(const ros::Publisher& marker_pub, const ros::Publisher& pose_stamped_pub);
   void Callback(const sensor_msgs::PointCloud2& msg);
 
  private:
-  ros::Publisher centroid_pub_;
+  ros::Publisher marker_pub_, pose_stamped_pub_;
 };
 }  // namespace perception

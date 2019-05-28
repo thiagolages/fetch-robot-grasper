@@ -10,6 +10,7 @@
 #include "pcl/filters/crop_box.h"
 #include "pcl/common/common.h"
 #include <visualization_msgs/Marker.h>
+#include <geometry_msgs/PoseStamped.h>
 
 #include <sstream>
 
@@ -19,6 +20,8 @@ typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 namespace perception {
 
 visualization_msgs::Marker marker;
+geometry_msgs::PoseStamped pose_stamped;
+
 
 void CentroidOfCloud(PointCloudC::Ptr cloud) {
 
@@ -59,7 +62,12 @@ void CentroidOfCloud(PointCloudC::Ptr cloud) {
 					marker.color.r = 0.0;
 					marker.color.g = 1.0;
 					marker.color.b = 0.0;
-						ROS_INFO("Updated Marker");
+					ROS_INFO("Updated Marker");
+
+					pose_stamped.header = marker.header;
+					pose_stamped.pose 	= marker.pose;
+					ROS_INFO("Updated pose_stamped as well");
+
 			//////////////////
 
 			//////////////////
@@ -94,16 +102,19 @@ void CentroidOfCloud(PointCloudC::Ptr cloud) {
 
 }
 
-Centroid_::Centroid_(const ros::Publisher& centroid_pub)
-    : centroid_pub_(centroid_pub) {}
+Centroid_::Centroid_(const ros::Publisher& marker_pub, const ros::Publisher& pose_stamped_pub)
+    : marker_pub_(marker_pub), pose_stamped_pub_(pose_stamped_pub) {}
 
 
 void Centroid_::Callback(const sensor_msgs::PointCloud2& msg) {
   PointCloudC::Ptr cloud(new PointCloudC());
   pcl::fromROSMsg(msg, *cloud);
-	CentroidOfCloud(cloud);
+  CentroidOfCloud(cloud);
 		 // sensor_msgs::PointCloud2 msg_out;
 		 // pcl::toROSMsg(*cropped_cloud, msg_out);
-  centroid_pub_.publish(marker);
+  marker_pub_.publish(marker);
+  pose_stamped_pub_.publish(pose_stamped);
+
+
 }
 }  // namespace perception

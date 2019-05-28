@@ -7,6 +7,7 @@ from moveit_python import MoveGroupInterface, PlanningSceneInterface
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 
 from geometry_msgs.msg import Polygon
+from std_msgs.msg import Bool
 
 import moveit_commander
 # class definition that is useful for moving base around (file inside our package)
@@ -15,6 +16,43 @@ from nav_msgs.msg import Path
 
 path = Path()
 p = Polygon()
+
+def lowerTorsoCallback(data):
+    # doing this so we have a callback and also a 'standalone' function inside the code to lower the torso whenever we want
+    lower_torso(data.data) # either 0 or 1
+
+def lower_torso(option):
+    
+    if option: # if we want to lower it
+        rospy.loginfo("Lowering torso..")
+        torso_action = FollowTrajectoryClient("torso_controller", ["torso_lift_joint"])
+        torso_action.move_to([0.0, ])
+        
+    else:
+        rospy.loginfo("Keeping torso in the same position.")
+
+def tuckCallback(data):
+    # doing this so we have a callback and also a 'standalone' function inside the code to tuck it whenever we want
+    tuck(data.data) # either 0 or 1
+
+def tuck(option):
+
+    global group
+
+    joints = ["shoulder_pan_joint", "shoulder_lift_joint", "upperarm_roll_joint",
+              "elbow_flex_joint", "forearm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
+    joint_pose = [1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0]
+    
+    if option:
+        while not rospy.is_shutdown():
+            rospy.loginfo("Tucking..")
+            result = group.go(joint_pose)
+            if result:
+                group.go(joint_pose, wait=True)
+                group.stop() # no residual movement
+                return
+    else:
+        rospy.loginfo("Keeping arm in the same position (not eexcuting tuck command).")
 
 def grasperCallback(gripper_pose_stamped):
 
@@ -36,10 +74,26 @@ def grasperCallback(gripper_pose_stamped):
     group.set_pose_target(gripper_pose_stamped)
     rospy.loginfo("before go()")
     rospy.loginfo("desired pose = %s",gripper_pose_stamped.pose)
-    plan1 = group.go()
+    result = group.plan()
+    
+    
+    if result:
+       # Checking the MoveItErrorCode
+       #if result.error_code.val == MoveItErrorCodes.SUCCESS:
+            rospy.loginfo("Nice, SUCCESS on planning !")
+            group.go(wait=True)
+            group.stop() # no residual movement
+            group.clear_pose_targets()
+       #else:
+            # If you get to this point please search for:
+            # moveit_msgs/MoveItErrorCodes.msg
+        #    rospy.logerr("Arm goal in state: %s",
+        #                move_group.get_move_action().get_state())
+    else:
+        rospy.logerr("MoveIt! failure no result returned.")
+
     rospy.loginfo("after go()")
     rospy.loginfo("current pose = %s",group.get_current_pose())
-
 
     '''
     if result:
@@ -131,6 +185,8 @@ def check_result(result):
 def grasper():
     
     rospy.Subscriber("/demo/pose_stamped", PoseStamped, grasperCallback)
+    rospy.Subscriber("/demo/tuck", Bool, tuckCallback)
+    rospy.Subscriber("/demo/lower_torso", Bool, lowerTorsoCallback)
     rospy.spin()
 
 if __name__ == '__main__':
