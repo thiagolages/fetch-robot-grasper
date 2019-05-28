@@ -14,6 +14,7 @@
 
 #include <sstream>
 
+
 typedef pcl::PointXYZRGB PointC;
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloudC;
 
@@ -32,9 +33,20 @@ void CentroidOfCloud(PointCloudC::Ptr cloud) {
 	PointC max_pcl;
 	PointC centroid;
 	pcl::getMinMax3D<PointC>(*cloud, min_pcl, max_pcl);
-	centroid.x=(min_pcl.x + max_pcl.x)/2;
-	centroid.y=(min_pcl.y + max_pcl.y)/2;
-	centroid.z=(min_pcl.z + max_pcl.z)/2;
+	centroid.x += 0.0;
+	centroid.y += 0.0;
+	centroid.z += 0.0;
+	for (int i=0; i < int(cloud->size()); i++){
+		centroid.x += cloud->at(i).x;
+		centroid.y += cloud->at(i).y;
+		centroid.z += cloud->at(i).z;
+		ROS_INFO("cloud(%d) = %f", i, cloud->at(i).x);
+		ROS_INFO("Centroid.x = %f", centroid.x);
+	}
+		centroid.x = centroid.x/cloud->size();
+		centroid.y = centroid.x/cloud->size();
+		centroid.z = centroid.x/cloud->size();
+	
 	ROS_INFO("Centroid: X: %f, Y: %f, Z: %f", centroid.x, centroid.y, centroid.z);
 
 
@@ -51,9 +63,9 @@ void CentroidOfCloud(PointCloudC::Ptr cloud) {
 					marker.pose.position.x = centroid.z;
 					marker.pose.position.y = -centroid.x;
 					marker.pose.position.z = -centroid.y;
-					marker.pose.orientation.x = 1;
-					marker.pose.orientation.y = 1;
-					marker.pose.orientation.z = 1;
+					marker.pose.orientation.x = 0;
+					marker.pose.orientation.y = 0;
+					marker.pose.orientation.z = 0;
 					marker.pose.orientation.w = 1.0;
 					marker.scale.x = 0.05;
 					marker.scale.y = 0.05;
