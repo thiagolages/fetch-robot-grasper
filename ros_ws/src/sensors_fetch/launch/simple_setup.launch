@@ -37,6 +37,6 @@
 
 
   <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find fetch_navigation)/config/navigation.rviz" /> -->
-  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find sensors_fetch)/configs/fetch.rviz"/>
+  <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find sensors_fetch)/configs/fetch.rviz"/> -->
 
 </launch>
