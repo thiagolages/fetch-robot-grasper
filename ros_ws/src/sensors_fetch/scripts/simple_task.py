@@ -19,18 +19,22 @@ def moveToPose(gripper_poses):
 
     global move_group
     # This is the wrist link not the gripper itself
-    #gripper_frame = 'wrist_roll_link'
-    gripper_frame = 'gripper_link'
+    gripper_frame = 'wrist_roll_link'
+    #gripper_frame = 'gripper_link'
     listener = tf.TransformListener()
 
     # Construct a "pose_stamped" message as required by moveToPose
     gripper_pose_stamped = PoseStamped()
-    #gripper_pose_stamped.header.stamp = rospy.Time.now()
-    gripper_pose_stamped.header.frame_id = 'base_link'
-      
+
+    
 
     for pose in gripper_poses:
+        gripper_pose_stamped.pose = pose
+        gripper_pose_stamped.header.stamp = rospy.Time.now()
+        gripper_pose_stamped.header.frame_id = 'base_link'
+      
         flag = True
+        '''
         #change before moving
         while(flag == True):
             try: 
@@ -52,6 +56,8 @@ def moveToPose(gripper_poses):
                 print_exc()
                 rospy.loginfo("Sem tempo irmao")
                 continue
+        ''' #comentado
+
 
         rospy.loginfo("Moving %s to pose %s:\n",gripper_frame, pose)
         #rospy.loginfo("Inside 'pose' loop")
@@ -152,10 +158,10 @@ def define_ground_plane():
     planning_scene.addCube("my_left_ground" , 2,  0.0,  1.2, -1.0)
     planning_scene.addCube("my_right_ground", 2,  0.0, -1.2, -1.0)
 
-    rospy.Subscriber("/obstacles/table", PolygonWithHeight, planning_scene_callback)
+    #rospy.Subscriber("/obstacles/table", PolygonWithHeight, planning_scene_callback)
 
-    while (polygon_with_height.height == None):
-        continue
+    #while (polygon_with_height.height == None):
+    #    continue
 
     # STOPPED HERE
     #size_x = polygon_with_height.polygon.points[0] - 

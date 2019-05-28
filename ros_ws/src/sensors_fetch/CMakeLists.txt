@@ -7,7 +7,12 @@ project(sensors_fetch)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+			roscpp
+			rospy
+		   	std_msgs
+		   	message_generation
+		   	geometry_msgs)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -44,7 +49,7 @@ find_package(catkin REQUIRED)
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
-#   FILES
+#	  FILES
 #   Message1.msg
 #   Message2.msg
 # )
@@ -67,6 +72,8 @@ find_package(catkin REQUIRED)
 # generate_messages(
 #   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
+#   geometry_msgs
+#   sensors_fetch
 # )
 
 ################################################
@@ -103,6 +110,7 @@ catkin_package(
 #  LIBRARIES sensors_fetch
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
+
 )
 
 ###########
