@@ -1,4 +1,4 @@
-<launch>
+<launch>  
 
   <env name="GAZEBO_MODEL_PATH" value="$(find fetch_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)" />
 
@@ -19,10 +19,10 @@
 
   <!-- Oh, you wanted a robot? -->
   <include file="$(find fetch_gazebo)/launch/include/$(arg robot).launch.xml">
-    <arg name="x"   value="2.750" />
-    <arg name="y"   value="3.118" />
-    <arg name="z"   value="0.0" />
-    <arg name="yaw" value="-1.4" />
+    <arg name="x"   value="2.8" />
+    <arg name="y"   value="3.0" />
+    <arg name="z"   value="0.05" />
+    <arg name="yaw" value="-1.3" />
   </include>
 
 </launch>

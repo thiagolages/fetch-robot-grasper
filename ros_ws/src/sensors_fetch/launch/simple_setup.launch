@@ -28,7 +28,9 @@
   </group>
 
 
-  <node pkg="sensors_fetch" type="final_demo.py" name="final_demo"/>
+  <!-- <node pkg="sensors_fetch" type="robot_manual_control.py" name="robot_manual_control"/> -->
+  <!-- <node pkg="sensors_fetch" type="final_demo.py" name="final_demo"/> -->
+
 
   <!-- Simple Task (Joint State) -->
   <!-- <node name="simple_task_joint_state" pkg="sensors_fetch" type="simple_task_joint_state.py" output="screen" /> -->

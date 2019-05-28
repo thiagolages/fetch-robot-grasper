@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
   ros::Publisher marker_pub =
       nh.advertise<visualization_msgs::Marker>("centroid_marker", 1, true);
   ros::Publisher pose_stamped_pub =
-      nh.advertise<geometry_msgs::PoseStamped>("/demo/pose_stamped", 1, true);
+      nh.advertise<geometry_msgs::PoseStamped>("/demo/centroid", 1, true);
   perception::Centroid_ centroid_(marker_pub, pose_stamped_pub);
   ros::Subscriber sub =
       nh.subscribe("cloud_in", 1, &perception::Centroid_::Callback, &centroid_);

@@ -5,8 +5,9 @@ import geometry_msgs.msg
 from moveit_msgs.msg import MoveItErrorCodes
 from moveit_python import MoveGroupInterface, PlanningSceneInterface
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
-from geometry_msgs.msg import Polygon
+from geometry_msgs.msg import Polygon, PolygonStamped
 from std_msgs.msg import Bool
 
 import actionlib
@@ -17,68 +18,15 @@ import moveit_commander
 from client_interface import MoveBaseClient 
 from nav_msgs.msg import Path
 
+from tf.transformations import quaternion_from_euler
+from tf import TransformerROS, TransformListener
+import tf2_ros
+
+from math import sin, cos
+
 path = Path()
-p = Polygon()
+table = PolygonStamped()
 
-def lookAtCallback(msg):
-    # doing this so we have a callback and also a 'standalone' function inside the code to look_at whatever we want
-    rospy.loginfo("inside LOOKATCALLBACK")
-    lookAt(msg)
-
-def lookAt(pose_stamped):
-    rospy.loginfo("Received == %s",pose_stamped)
-    client = actionlib.SimpleActionClient("head_controller/point_head", PointHeadAction)
-    rospy.loginfo("Waiting for head_controller...")
-    client.wait_for_server()
-    rospy.loginfo("Done waiting !")
-    goal = PointHeadGoal()
-    goal.target.header.stamp = rospy.Time.now()
-    goal.target.header.frame_id = pose_stamped.header.frame_id
-    goal.target.point.x = pose_stamped.pose.position.x
-    goal.target.point.y = pose_stamped.pose.position.y
-    goal.target.point.z = pose_stamped.pose.position.z
-    duration = 1.0
-    goal.min_duration = rospy.Duration(duration)
-    client.send_goal(goal)
-    client.wait_for_result()
-
-def lowerTorsoCallback(data):
-    # doing this so we have a callback and also a 'standalone' function inside the code to lower the torso whenever we want
-    lower_torso(data.data) # either 0 or 1
-
-def lower_torso(option):
-    
-    if option: # if we want to lower it
-        rospy.loginfo("Lowering torso..")
-        torso_action = FollowTrajectoryClient("torso_controller", ["torso_lift_joint"])
-        torso_action.move_to([0.0, ])
-        rospy.loginfo("Done lowering torso !")
-    else:
-        rospy.loginfo("Keeping torso in the same position.")
-
-def tuckCallback(data):
-    # doing this so we have a callback and also a 'standalone' function inside the code to tuck it whenever we want
-    tuck(data.data) # either 0 or 1
-
-def tuck(option):
-
-    global group
-
-    joints = ["shoulder_pan_joint", "shoulder_lift_joint", "upperarm_roll_joint",
-              "elbow_flex_joint", "forearm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
-    joint_pose = [1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0]
-    
-    if option:
-        while not rospy.is_shutdown():
-            result = group.go(joint_pose)
-            if result:
-                rospy.loginfo("Tucking..")
-                group.go(joint_pose, wait=True)
-                group.stop() # no residual movement
-                rospy.loginfo("Done Tucking !")
-                return
-    else:
-        rospy.loginfo("Keeping arm in the same position (not executing tuck command).")
 
 def grasperCallback(gripper_pose_stamped):
 
@@ -140,41 +88,97 @@ def moveToJointPosition(joint_position):
         joint_pos = group.get_current_joint_values()
         rospy.loginfo("Current joint pos = %s",joint_pos)
 
-def planning_scene_callback(data):
-    global p
-    return
+def planningSceneCallback(polygon_stamped):
+    global table
+    #rospy.loginfo("Inside planningSceneCallback")
+    table = polygon_stamped
 
-def define_ground_plane():
+def defineGroundPlane():
     
-    global p
+    global table
     
     # Define ground plane
     # This creates objects in the planning scene that mimic the ground
     # If these were not in place gripper could hit the ground
     
+    rospy.loginfo("Defining obstacles around me..")
+
     global planning_scene
     planning_scene.removeCollisionObject("my_front_ground")
     planning_scene.removeCollisionObject("my_back_ground")
     planning_scene.removeCollisionObject("my_right_ground")
     planning_scene.removeCollisionObject("my_left_ground")
+    planning_scene.removeCollisionObject("table")
     planning_scene.addCube("my_front_ground", 2,  1.1,  0.0, -1.0)
     planning_scene.addCube("my_back_ground" , 2, -1.2,  0.0, -1.0)
     planning_scene.addCube("my_left_ground" , 2,  0.0,  1.2, -1.0)
     planning_scene.addCube("my_right_ground", 2,  0.0, -1.2, -1.0)
 
-    #rospy.Subscriber("/obstacles/table", PolygonWithHeight, planning_scene_callback)
+    # se have a callback to update table
 
-    #while (p == None):
+    #while not rospy.is_shutdown():
+    print table
+    if (len(table.polygon.points) > 0):
+        rospy.loginfo("Received info related to the table !")
+        #break    
     #    continue
 
-    # STOPPED HERE
-    #size_x = polygon_with_height.polygon.points[0] - 
-    #size_y = 
-    #size_z = 
-    #x = 
-    #y = 
-    #z = 
-    #lanning_scene.addBox("table" , size_x=,size_x=,size_x=,x=,y=,z=) # avoid hitting the table
+        # STOPPED HERE
+        max_x = max_y = max_z = -9999
+        min_x = min_y = min_z =  9999
+        for i in table.polygon.points:
+            if i.x > max_x: max_x = i.x
+            if i.y > max_y: max_y = i.y
+            if i.z > max_z: max_z = i.z
+
+            if i.x < min_x: min_x = i.x
+            if i.y < min_y: min_y = i.y
+            if i.z < min_z: min_z = i.z
+
+        size_x = max_x - min_x
+        size_y = max_y - min_y
+        size_z = max_z - min_z
+        
+        p = PoseStamped()
+        p.header = table.header
+        p.pose.position.x = table.polygon.points[0].x
+        p.pose.position.y = table.polygon.points[0].y
+        p.pose.position.z = table.polygon.points[0].z
+        p.pose.orientation.x = 0.0
+        p.pose.orientation.y = 0.0
+        p.pose.orientation.z = 0.0
+        p.pose.orientation.w = 1.0
+        rospy.loginfo("Point in previous reference frame = %s",p)
+        
+        #t = TransformListener()
+        global t #TransformROS
+        #buff = tf2_ros.Buffer()
+        #t = tf2_ros.TransformListener(buff)
+
+        #while not rospy.is_shutdown():
+        #    try:
+        #        new_p = t.transformPose('base_link', p)
+        #        break
+        #    except Exception as e:
+        #        print (e)
+        #        pass
+        #x = new_p.pose.position.x
+        #y = new_p.pose.position.y
+        #z = new_p.pose.position.z
+        #overriding just to test
+        size_x = 1.0
+        size_y = 1.0
+        size_z = 0.1
+        x = 1.0
+        y = 0.0
+        z = 1.0
+        #rospy.loginfo("Point in NEW reference frame = %s",new_p)
+
+        planning_scene.addBox("table" , size_x=size_x,size_y=size_y,size_z=size_z,x=x,y=y,z=z) # avoid hitting the table
+    else:
+        rospy.loginfo("Didn't receive information about the tabe yet, contonuing without adding table..")
+    
+
 
 def check_result(result):
     global move_group
@@ -190,16 +194,39 @@ def check_result(result):
             move_group.get_move_action().get_state())
             return False
     else:
-        rospy.logerr("aaaaaaaaaaaaaaaMoveIt! failure no result returned.")
+        rospy.logerr("MoveIt! failure no result returned.")
         rospy.loginfo(result)
 
 def grasper():
     
-    #rospy.Subscriber("/demo/pose_stamped", PoseStamped, grasperCallback)
-    #rospy.Subscriber("/demo/tuck", Bool, tuckCallback)
-    #rospy.Subscriber("/demo/lower_torso", Bool, lowerTorsoCallback)
-    rospy.Subscriber("/demo/look_at", PoseStamped, lookAtCallback)
+    rospy.Subscriber("/demo/centroid"   , PoseStamped, grasperCallback)    
     rospy.spin()
+
+def initialMoveBase():
+    pos = PoseStamped()
+    rospy.loginfo("Moving base to a better position..")
+    pos.header.frame_id = "map"
+    pos.pose.position.x = 2.8
+    pos.pose.position.y = 3.0
+    pos.pose.position.z = 0.0
+    pos.pose.orientation.x = 0.0
+    pos.pose.orientation.y = 0.0
+    pos.pose.orientation.z = 0.0
+    pos.pose.orientation.w = 1.0
+    moveBase(pos)
+
+def initialLookAt():
+    pos = PoseStamped()
+    rospy.loginfo("Looking at the table..")
+    pos.header.frame_id = "base_link"
+    pos.pose.position.x = 1.0 
+    pos.pose.position.y = 0.0
+    pos.pose.position.z = 0.5
+    pos.pose.orientation.x = 0.0
+    pos.pose.orientation.y = 0.0
+    pos.pose.orientation.z = 0.0
+    pos.pose.orientation.w = 1.0
+    lookAt(pos)
 
 if __name__ == '__main__':
 
@@ -209,18 +236,17 @@ if __name__ == '__main__':
     group = moveit_commander.MoveGroupCommander("arm")
     planning_scene = PlanningSceneInterface("base_link")
     # Create move group interface for a fetch robot
-    #move_group = MoveGroupInterface("arm_with_torso", "base_link") #moveToPose, moveToJointPosition, get_result
-    move_group = MoveGroupInterface("arm", "base_link") #moveToPose, moveToJointPosition, get_result
+    move_group = MoveGroupInterface("arm_with_torso", "base_link") #moveToPose, moveToJointPosition, get_result
+    #move_group = MoveGroupInterface("arm", "base_link") #moveToPose, moveToJointPosition, get_result
 
-    define_ground_plane()
+    t =  TransformerROS()
+    rospy.Subscriber("/convex_hull/output_polygon", PolygonStamped, planningSceneCallback)
+
+    defineGroundPlane()
     
-    pos = PoseStamped()
-    pos.header.frame_id = "map"
-    pos.pose.position.x = 3.7
-    pos.pose.position.y = 3.18
-    pos.pose.position.z = 0.0
-    lookAt(pos)
-
+    initialMoveBase()
+    initialLookAt()
+    
     grasper()
 
     while not rospy.is_shutdown():
