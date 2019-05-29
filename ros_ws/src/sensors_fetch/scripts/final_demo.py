@@ -41,18 +41,19 @@ def grasperCallback(gripper_pose_stamped):
     group.set_pose_target(gripper_pose_stamped)
     rospy.loginfo("1) Desired pose = %s",gripper_pose_stamped.pose)
     result = group.plan()
-     
-    if result:
+    #print("result ================== %s",result)
+    if (len(result.joint_trajectory.points) != 0):
         rospy.loginfo("SUCCESS on planning !")
         rospy.loginfo("Moving arm...")
         group.go(wait=True)
         group.stop() # no residual movement
         rospy.loginfo("Done moving arm !")
         group.clear_pose_targets()
+        rospy.loginfo("2) Pose achieved = %s",group.get_current_pose())
     else:
         rospy.logerr("MoveIt! failure no result returned.")
 
-    rospy.loginfo("2) Pose achieved = %s",group.get_current_pose())
+    
     #rospy.loginfo("Error = %s",error)
     '''
     if result:
@@ -244,8 +245,8 @@ if __name__ == '__main__':
 
     defineGroundPlane()
     
-    initialMoveBase()
-    initialLookAt()
+    #initialMoveBase()
+    #initialLookAt()
     
     grasper()
 
