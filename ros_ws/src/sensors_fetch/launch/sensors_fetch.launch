@@ -28,7 +28,7 @@
   </group>
 
 
-  <!-- <node pkg="sensors_fetch" type="robot_manual_control.py" name="robot_manual_control"/> -->
+  <node pkg="sensors_fetch" type="robot_manual_control.py" name="robot_manual_control"/>
   <!-- <node pkg="sensors_fetch" type="final_demo.py" name="final_demo"/> -->
 
 

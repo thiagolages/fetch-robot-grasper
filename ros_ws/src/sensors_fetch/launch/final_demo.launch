@@ -1,0 +1,4 @@
+<launch>
+	<include file="$(find sensors_fetch)/launch/sensors_fetch.launch" />
+	<include file="$(find perception)/launch/perception.launch" />
+</launch>
